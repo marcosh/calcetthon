@@ -1,0 +1,54 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.1.0",
+        "title": "Calcetthon API",
+        "license": {
+            "name": "All Rights Reserved"
+        },
+        "description": "The API for our foosball scores"
+    },
+    "definitions": {
+        "User": {
+            "required": [
+                "userId",
+                "userFirstName",
+                "userLastName"
+            ],
+            "type": "object",
+            "properties": {
+                "userFirstName": {
+                    "type": "string"
+                },
+                "userLastName": {
+                    "type": "string"
+                },
+                "userId": {
+                    "maximum": 9223372036854775807,
+                    "minimum": -9223372036854775808,
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "paths": {
+        "/users": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            },
+                            "type": "array"
+                        },
+                        "description": ""
+                    }
+                },
+                "produces": [
+                    "application/json;charset=utf-8"
+                ]
+            }
+        }
+    }
+}

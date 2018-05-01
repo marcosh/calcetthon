@@ -1,0 +1,62 @@
+name: calcetthon
+version: '0.1.0.0'
+category: Web
+author: Marco Perone
+maintainer: m.perone@mvlabs.it
+copyright: 2018 MVLabs
+extra-source-files:
+- README.md
+library:
+  source-dirs: src
+  exposed-modules:
+  - Lib
+  dependencies:
+  - aeson
+  - base >=4.7 && <5
+  - servant-server
+  - swagger2
+  - wai
+  - warp
+executables:
+  calcetthon-exe:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - calcetthon
+  swagger-exe:
+    main: Main.hs
+    source-dirs: swagger
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - aeson-pretty
+    - base
+    - bytestring
+    - calcetthon
+    - directory
+    - filepath
+    - lens
+    - servant-swagger
+    - swagger2
+tests:
+  model-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - calcetthon
+    - hspec
+    - hspec-wai
+    - hspec-wai-json
+    - aeson
