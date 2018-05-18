@@ -1,6 +1,9 @@
 module Main where
 
-import Lib
+import           EventStore
+import           Lib
 
 main :: IO ()
-main = startApp
+-- main = startApp
+
+main = playersStoreExample

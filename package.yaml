@@ -9,12 +9,18 @@ extra-source-files:
 library:
   source-dirs: src
   exposed-modules:
+  - EventStore
   - Lib
   dependencies:
   - aeson
   - base >=4.7 && <5
+  - email-validate
+  - eventful-core
+  - eventful-memory
   - servant-server
+  - stm
   - swagger2
+  - time
   - wai
   - warp
 executables:
