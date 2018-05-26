@@ -9,44 +9,90 @@
         "description": "The API for our foosball scores"
     },
     "definitions": {
-        "User": {
+        "email": {
+            "example": "gigi@zucon.com",
+            "format": "email",
+            "type": "string",
+            "description": "email"
+        },
+        "UUID": {
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string"
+        },
+        "Day": {
+            "example": "2016-07-22",
+            "format": "date",
+            "type": "string"
+        },
+        "PlayerData": {
             "required": [
-                "userId",
-                "userFirstName",
-                "userLastName"
+                "name",
+                "surname",
+                "nickname",
+                "birthDate",
+                "email"
             ],
             "type": "object",
             "properties": {
-                "userFirstName": {
+                "email": {
+                    "$ref": "#/definitions/email"
+                },
+                "name": {
                     "type": "string"
                 },
-                "userLastName": {
+                "nickname": {
                     "type": "string"
                 },
-                "userId": {
-                    "maximum": 9223372036854775807,
-                    "minimum": -9223372036854775808,
-                    "type": "integer"
+                "surname": {
+                    "type": "string"
+                },
+                "birthDate": {
+                    "$ref": "#/definitions/Day"
+                }
+            }
+        },
+        "PlayerId": {
+            "required": [
+                "uuid"
+            ],
+            "type": "object",
+            "properties": {
+                "uuid": {
+                    "$ref": "#/definitions/UUID"
                 }
             }
         }
     },
     "paths": {
-        "/users": {
-            "get": {
+        "/add-new-player": {
+            "post": {
+                "consumes": [
+                    "application/json;charset=utf-8"
+                ],
                 "responses": {
+                    "400": {
+                        "description": "Invalid `body`"
+                    },
                     "200": {
                         "schema": {
-                            "items": {
-                                "$ref": "#/definitions/User"
-                            },
-                            "type": "array"
+                            "$ref": "#/definitions/PlayerId"
                         },
                         "description": ""
                     }
                 },
                 "produces": [
                     "application/json;charset=utf-8"
+                ],
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PlayerData"
+                        },
+                        "in": "body",
+                        "name": "body"
+                    }
                 ]
             }
         }

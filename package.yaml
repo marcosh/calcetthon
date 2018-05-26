@@ -14,10 +14,12 @@ library:
   dependencies:
   - aeson
   - base >=4.7 && <5
-  - email-validate
+  - emailaddress
   - eventful-core
   - eventful-memory
+  - lens
   - servant-server
+  - servant-swagger
   - stm
   - swagger2
   - time

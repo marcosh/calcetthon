@@ -1,20 +1,44 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Player where
 
-import           Data.String        (IsString)
+import           Control.Lens
+import           Data.Aeson         (FromJSON, ToJSON)
+import           Data.String        ()
+import           Data.Swagger
 import           Data.Time.Calendar (Day)
 import           Eventful
-import           Text.Email.Parser  (EmailAddress)
+import           GHC.Generics       (Generic)
+import           Text.EmailAddress  (EmailAddress)
+
+instance ToSchema EmailAddress where
+    declareNamedSchema _ = return $ NamedSchema (Just "email") $ mempty
+        & type_ .~ SwaggerString
+        & description ?~ "email"
+        & format ?~ "email"
+        & example ?~ "gigi@zucon.com"
 
 newtype PlayerId = PlayerId { uuid :: UUID }
-    deriving (Eq, Show)
+    deriving (Eq, Show, Generic, ToJSON, ToSchema)
 
-data Player = Player
-    { playerId  :: PlayerId
-    , name      :: String
+data PlayerData = PlayerData
+    { name      :: String
     , surname   :: String
     , nickname  :: String
     , birthDate :: Day
     , email     :: EmailAddress
+    }
+    deriving (Eq, Show, Generic)
+
+instance FromJSON PlayerData
+
+instance ToSchema PlayerData
+
+data Player = Player
+    { playerId   :: PlayerId
+    , playerData :: PlayerData
     }
     deriving (Eq, Show)
 

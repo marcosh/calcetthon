@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8b88b1c64c16436f62fd8e68fdc2a0a759c6a764ba855a494061e8371fce2ad9
+-- hash: 25e9f118fb0c96e02a3727b437138fbe27222440e4142ca7600b76b3b8fa02b7
 
 name:           calcetthon
 version:        0.1.0.0
@@ -22,10 +22,12 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
-    , email-validate
+    , emailaddress
     , eventful-core
     , eventful-memory
+    , lens
     , servant-server
+    , servant-swagger
     , stm
     , swagger2
     , time
@@ -35,6 +37,7 @@ library
       EventStore
       Lib
   other-modules:
+      Api
       Player
       Paths_calcetthon
   default-language: Haskell2010

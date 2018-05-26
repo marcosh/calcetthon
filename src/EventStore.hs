@@ -9,7 +9,7 @@ import           Data.Time.Calendar     (Day, fromGregorian)
 import           Eventful
 import           Eventful.Store.Memory
 import           Eventful.UUID          (uuidFromText)
-import           Text.Email.Parser      (unsafeEmailAddress)
+import           Text.EmailAddress      (unsafeEmailAddress)
 
 import           Player
 
@@ -18,24 +18,27 @@ marcoId = (PlayerId $ fromJust $ uuidFromText "c883a288-121f-4050-ac9c-13e1cfdd8
 
 marco :: Player
 marco = Player
-    marcoId
-    "Marco"
-    "Perone"
-    "Marcosh"
-    (fromGregorian 1983 11 14)
-    (unsafeEmailAddress "m.perone" "mvlabs.it") -- unsafe!!
+    marcoId $
+    PlayerData
+        "Marco"
+        "Perone"
+        "Marcosh"
+        (fromGregorian 1983 11 14)
+        (unsafeEmailAddress "m.perone" "mvlabs.it") -- unsafe!!
+
 
 andreaId :: PlayerId
 andreaId = (PlayerId $ fromJust $ uuidFromText "223ff6a8-cb4e-475d-a7db-8077892e5877") -- unsafe!!
 
 andrea :: Player
 andrea = Player
-    andreaId
-    "Andrea"
-    "Cadorin"
-    "Cado"
-    (fromGregorian 1989 1 25)
-    (unsafeEmailAddress "a.cadorin" "mvlabs.it") -- unsafe!!
+    andreaId $
+    PlayerData
+        "Andrea"
+        "Cadorin"
+        "Cado"
+        (fromGregorian 1989 1 25)
+        (unsafeEmailAddress "a.cadorin" "mvlabs.it") -- unsafe!!
 
 playersStoreExample :: IO ()
 playersStoreExample = do
