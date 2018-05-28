@@ -51,18 +51,46 @@ hasPlayerId pId player = pId == playerId player
 newtype Players = Players { list :: [Player] }
     deriving (Eq, Show)
 
-data PlayerEvent
-    = AddNewPlayer Player
-    | EditPlayer Player
+-- COMMANDS
+
+data PlayerCommand
+    = AddNewPlayer PlayerId PlayerData
     | RemovePlayer PlayerId
+    | EditPlayer PlayerId PlayerData
+
+playerCommandHandler :: Players -> PlayerCommand -> [PlayerEvent]
+playerCommandHandler players (AddNewPlayer playerId playerData) = addNewPlayer players playerId playerData
+playerCommandHandler players (RemovePlayer playerId) = removePlayer players playerId
+playerCommandHandler players (EditPlayer playerId playerData)   = editPlayer players playerId playerData
+
+addNewPlayer :: Players -> PlayerId -> PlayerData -> [PlayerEvent]
+addNewPlayer players playerId playerData = []
+
+removePlayer :: Players -> PlayerId -> [PlayerEvent]
+removePlayer players playerId = []
+
+editPlayer :: Players -> PlayerId -> PlayerData -> [PlayerEvent]
+editPlayer players playerId playerData = []
+
+-- EVENTS
+
+data PlayerEvent
+    = NewPlayerAdded Player
+    | PlayerEdited Player
+    | PlayerRemoved PlayerId
 
 handlePlayerEvent :: Players -> PlayerEvent -> Players
-handlePlayerEvent (Players players) (AddNewPlayer player) = Players $ player : players
-handlePlayerEvent (Players players) (EditPlayer player) = Players $ map (replacePlayer player) players
-handlePlayerEvent (Players players) (RemovePlayer pId) = Players $ filter (not . hasPlayerId pId) players
+handlePlayerEvent (Players players) (NewPlayerAdded player) = Players $ player : players
+handlePlayerEvent (Players players) (PlayerEdited player) = Players $ map (replacePlayer player) players
+handlePlayerEvent (Players players) (PlayerRemoved pId) = Players $ filter (not . hasPlayerId pId) players
 
 playersProjection :: Projection Players PlayerEvent
 playersProjection = Projection
     { projectionSeed = Players []
     , projectionEventHandler = handlePlayerEvent
     }
+
+-- AGGREGATE
+
+playersAggregate :: Aggregate Players PlayerEvent PlayerCommand
+playersAggregate = Aggregate playerCommandHandler playersProjection

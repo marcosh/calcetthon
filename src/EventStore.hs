@@ -49,9 +49,9 @@ playersStoreExample = do
     let
         uuid = read "123e4567-e89b-12d3-a456-426655440000" -- id of the stream of events
         events =
-            [ AddNewPlayer marco
-            , AddNewPlayer andrea
-            , RemovePlayer andreaId
+            [ NewPlayerAdded marco
+            , NewPlayerAdded andrea
+            , PlayerRemoved andreaId
             ]
     _ <- atomically $ storeEvents writer AnyVersion uuid events
 

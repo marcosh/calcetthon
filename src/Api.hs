@@ -16,4 +16,8 @@ calcetthonApi = addNewPlayerHandler
 addNewPlayerHandler :: PlayerData -> Handler PlayerId
 addNewPlayerHandler playerData = do
     uuid <- liftIO $ uuidNextRandom
+    let playerId = PlayerId uuid
+    -- this should be done asyncronously
+    -- pure $ addNewPlayer playerId playerData
+    -- end of async part
     return $ PlayerId uuid
