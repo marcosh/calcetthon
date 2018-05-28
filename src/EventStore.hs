@@ -5,7 +5,7 @@ module EventStore where
 
 import           Control.Concurrent.STM
 import           Data.Maybe             (fromJust)
-import           Data.Time.Calendar     (Day, fromGregorian)
+import           Data.Time.Calendar     (fromGregorian)
 import           Eventful
 import           Eventful.Store.Memory
 import           Eventful.UUID          (uuidFromText)
