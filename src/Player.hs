@@ -21,7 +21,7 @@ instance ToSchema EmailAddress where
         & example ?~ "gigi@zucon.com"
 
 newtype PlayerId = PlayerId { uuid :: UUID }
-    deriving (Eq, Show, Generic, ToJSON, ToSchema)
+    deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
 
 data PlayerData = PlayerData
     { name      :: String
@@ -30,17 +30,13 @@ data PlayerData = PlayerData
     , birthDate :: Day
     , email     :: EmailAddress
     }
-    deriving (Eq, Show, Generic)
-
-instance FromJSON PlayerData
-
-instance ToSchema PlayerData
+    deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
 data Player = Player
     { playerId   :: PlayerId
     , playerData :: PlayerData
     }
-    deriving (Eq, Show)
+    deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
 replacePlayer :: Player -> Player -> Player
 replacePlayer newPlayer oldPlayer = if playerId oldPlayer == playerId newPlayer then newPlayer else oldPlayer
@@ -49,7 +45,7 @@ hasPlayerId :: PlayerId -> Player -> Bool
 hasPlayerId pId player = pId == playerId player
 
 newtype Players = Players { list :: [Player] }
-    deriving (Eq, Show)
+    deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
 -- COMMANDS
 
@@ -64,13 +60,13 @@ playerCommandHandler players (RemovePlayer playerId) = removePlayer players play
 playerCommandHandler players (EditPlayer playerId playerData)   = editPlayer players playerId playerData
 
 addNewPlayer :: Players -> PlayerId -> PlayerData -> [PlayerEvent]
-addNewPlayer players playerId playerData = []
+addNewPlayer _ playerId playerData = [NewPlayerAdded $ Player playerId playerData]
 
 removePlayer :: Players -> PlayerId -> [PlayerEvent]
-removePlayer players playerId = []
+removePlayer _ playerId = [PlayerRemoved playerId]
 
 editPlayer :: Players -> PlayerId -> PlayerData -> [PlayerEvent]
-editPlayer players playerId playerData = []
+editPlayer _ playerId playerData = [PlayerEdited $ Player playerId playerData]
 
 -- EVENTS
 
@@ -78,6 +74,7 @@ data PlayerEvent
     = NewPlayerAdded Player
     | PlayerEdited Player
     | PlayerRemoved PlayerId
+    deriving (Eq, Show, Generic, FromJSON, ToJSON)
 
 handlePlayerEvent :: Players -> PlayerEvent -> Players
 handlePlayerEvent (Players players) (NewPlayerAdded player) = Players $ player : players

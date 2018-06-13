@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 25e9f118fb0c96e02a3727b437138fbe27222440e4142ca7600b76b3b8fa02b7
+-- hash: 4769948f0af0be90b333c62d5caedc94f81a5503a1603bcd182a4489b63a5c85
 
 name:           calcetthon
 version:        0.1.0.0
@@ -22,10 +22,18 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , conduit
     , emailaddress
     , eventful-core
     , eventful-memory
+    , eventful-postgresql
+    , eventful-sql-common
     , lens
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-postgresql
+    , resource-pool
     , servant-server
     , servant-swagger
     , stm
@@ -34,10 +42,11 @@ library
     , wai
     , warp
   exposed-modules:
-      EventStore
       Lib
   other-modules:
       Api
+      EventStore
+      Game
       Player
       Paths_calcetthon
   default-language: Haskell2010

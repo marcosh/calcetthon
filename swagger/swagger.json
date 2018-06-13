@@ -20,10 +20,107 @@
             "format": "uuid",
             "type": "string"
         },
+        "Score": {
+            "type": "string",
+            "enum": [
+                "Zero",
+                "One",
+                "Two",
+                "Three",
+                "Four",
+                "Five",
+                "Six"
+            ]
+        },
+        "GameId": {
+            "required": [
+                "uuid"
+            ],
+            "type": "object",
+            "properties": {
+                "uuid": {
+                    "$ref": "#/definitions/UUID"
+                }
+            }
+        },
+        "GameData": {
+            "required": [
+                "redTeam",
+                "blueTeam"
+            ],
+            "type": "object",
+            "properties": {
+                "redTeam": {
+                    "$ref": "#/definitions/TeamData"
+                },
+                "blueTeam": {
+                    "$ref": "#/definitions/TeamData"
+                }
+            }
+        },
         "Day": {
             "example": "2016-07-22",
             "format": "date",
             "type": "string"
+        },
+        "TeamData": {
+            "required": [
+                "team",
+                "score"
+            ],
+            "type": "object",
+            "properties": {
+                "score": {
+                    "$ref": "#/definitions/Score"
+                },
+                "team": {
+                    "$ref": "#/definitions/Team"
+                }
+            }
+        },
+        "Team": {
+            "required": [
+                "defender",
+                "attacker"
+            ],
+            "type": "object",
+            "properties": {
+                "defender": {
+                    "$ref": "#/definitions/PlayerId"
+                },
+                "attacker": {
+                    "$ref": "#/definitions/PlayerId"
+                }
+            }
+        },
+        "Players": {
+            "required": [
+                "list"
+            ],
+            "type": "object",
+            "properties": {
+                "list": {
+                    "items": {
+                        "$ref": "#/definitions/Player"
+                    },
+                    "type": "array"
+                }
+            }
+        },
+        "Player": {
+            "required": [
+                "playerId",
+                "playerData"
+            ],
+            "type": "object",
+            "properties": {
+                "playerData": {
+                    "$ref": "#/definitions/PlayerData"
+                },
+                "playerId": {
+                    "$ref": "#/definitions/PlayerId"
+                }
+            }
         },
         "PlayerData": {
             "required": [
@@ -89,6 +186,52 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/PlayerData"
+                        },
+                        "in": "body",
+                        "name": "body"
+                    }
+                ]
+            }
+        },
+        "/players": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/Players"
+                        },
+                        "description": ""
+                    }
+                },
+                "produces": [
+                    "application/json;charset=utf-8"
+                ]
+            }
+        },
+        "/record-game": {
+            "post": {
+                "consumes": [
+                    "application/json;charset=utf-8"
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid `body`"
+                    },
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/GameId"
+                        },
+                        "description": ""
+                    }
+                },
+                "produces": [
+                    "application/json;charset=utf-8"
+                ],
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/GameData"
                         },
                         "in": "body",
                         "name": "body"

@@ -9,15 +9,22 @@ extra-source-files:
 library:
   source-dirs: src
   exposed-modules:
-  - EventStore
   - Lib
   dependencies:
   - aeson
   - base >=4.7 && <5
+  - conduit
   - emailaddress
   - eventful-core
   - eventful-memory
+  - eventful-postgresql
+  - eventful-sql-common
   - lens
+  - monad-logger
+  - mtl
+  - persistent
+  - persistent-postgresql
+  - resource-pool
   - servant-server
   - servant-swagger
   - stm
