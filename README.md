@@ -32,6 +32,16 @@ Live recompiling after saving a project file with
 stack build --file-watch
 ```
 
+Bring up the postgres database and pgadmin with
+
+```
+docker-compose up
+```
+
+Postgres will be exposed on the default port 5432. The database is called `calcetthon` and also the username and the password are `calcetthon`.
+
+Pgadmin is accessible on the default 5050 port
+
 ## Swagger Documentation
 
 It is possible to generate an up-to-date swagger documentation using
