@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Player where
+module Model.Player where
 
 import           Control.Lens
 import           Data.Aeson         (FromJSON, ToJSON)
@@ -20,7 +20,7 @@ instance ToSchema EmailAddress where
         & format ?~ "email"
         & example ?~ "gigi@zucon.com"
 
-newtype PlayerId = PlayerId { uuid :: UUID }
+newtype PlayerId = PlayerId { uuid_ :: UUID }
     deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
 
 data PlayerData = PlayerData
@@ -33,16 +33,16 @@ data PlayerData = PlayerData
     deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
 data Player = Player
-    { playerId   :: PlayerId
-    , playerData :: PlayerData
+    { playerId_   :: PlayerId
+    , playerData_ :: PlayerData
     }
     deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
 replacePlayer :: Player -> Player -> Player
-replacePlayer newPlayer oldPlayer = if playerId oldPlayer == playerId newPlayer then newPlayer else oldPlayer
+replacePlayer newPlayer oldPlayer = if playerId_ oldPlayer == playerId_ newPlayer then newPlayer else oldPlayer
 
 hasPlayerId :: PlayerId -> Player -> Bool
-hasPlayerId pId player = pId == playerId player
+hasPlayerId pId player = pId == playerId_ player
 
 newtype Players = Players { list :: [Player] }
     deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)

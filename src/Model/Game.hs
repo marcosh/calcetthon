@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedLists   #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Game where
+module Model.Game where
 
 import           Control.Lens ((&), (.~))
 import           Data.Aeson   (FromJSON, ToJSON)
@@ -11,25 +11,16 @@ import           Data.Proxy   (Proxy (Proxy))
 import           Data.Swagger
 import           Eventful
 import           GHC.Generics (Generic)
-import           Player
+import           Model.Player
+import           Score
 
-newtype GameId = GameId { uuid :: UUID }
+newtype GameId = GameId { uuid_ :: UUID }
     deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
 
 data Team = Team
-    { defender :: PlayerId
-    , attacker :: PlayerId
+    { defence :: PlayerId
+    , attack  :: PlayerId
     }
-    deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
-
-data Score
-    = Zero
-    | One
-    | Two
-    | Three
-    | Four
-    | Five
-    | Six
     deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
 
 data TeamData = TeamData

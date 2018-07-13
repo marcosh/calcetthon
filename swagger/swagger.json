@@ -20,26 +20,25 @@
             "format": "uuid",
             "type": "string"
         },
-        "Score": {
-            "type": "string",
-            "enum": [
-                "Zero",
-                "One",
-                "Two",
-                "Three",
-                "Four",
-                "Five",
-                "Six"
-            ]
-        },
         "GameId": {
             "required": [
-                "uuid"
+                "uuid_"
             ],
             "type": "object",
             "properties": {
-                "uuid": {
+                "uuid_": {
                     "$ref": "#/definitions/UUID"
+                }
+            }
+        },
+        "Game": {
+            "type": "object",
+            "properties": {
+                "gameId": {
+                    "$ref": "#/definitions/GameId"
+                },
+                "gameData": {
+                    "$ref": "#/definitions/GameData"
                 }
             }
         },
@@ -71,7 +70,9 @@
             "type": "object",
             "properties": {
                 "score": {
-                    "$ref": "#/definitions/Score"
+                    "maximum": 6,
+                    "minimum": 0,
+                    "type": "integer"
                 },
                 "team": {
                     "$ref": "#/definitions/Team"
@@ -80,15 +81,15 @@
         },
         "Team": {
             "required": [
-                "defender",
-                "attacker"
+                "defence",
+                "attack"
             ],
             "type": "object",
             "properties": {
-                "defender": {
+                "defence": {
                     "$ref": "#/definitions/PlayerId"
                 },
-                "attacker": {
+                "attack": {
                     "$ref": "#/definitions/PlayerId"
                 }
             }
@@ -109,15 +110,15 @@
         },
         "Player": {
             "required": [
-                "playerId",
-                "playerData"
+                "playerId_",
+                "playerData_"
             ],
             "type": "object",
             "properties": {
-                "playerData": {
+                "playerData_": {
                     "$ref": "#/definitions/PlayerData"
                 },
-                "playerId": {
+                "playerId_": {
                     "$ref": "#/definitions/PlayerId"
                 }
             }
@@ -151,17 +152,44 @@
         },
         "PlayerId": {
             "required": [
-                "uuid"
+                "uuid_"
             ],
             "type": "object",
             "properties": {
-                "uuid": {
+                "uuid_": {
                     "$ref": "#/definitions/UUID"
                 }
             }
         }
     },
     "paths": {
+        "/game/{gameId}": {
+            "get": {
+                "responses": {
+                    "404": {
+                        "description": "`gameId` not found"
+                    },
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/Game"
+                        },
+                        "description": ""
+                    }
+                },
+                "produces": [
+                    "application/json;charset=utf-8"
+                ],
+                "parameters": [
+                    {
+                        "format": "uuid",
+                        "required": true,
+                        "in": "path",
+                        "name": "gameId",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/add-new-player": {
             "post": {
                 "consumes": [

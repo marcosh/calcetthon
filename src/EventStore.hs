@@ -11,7 +11,7 @@ import           Eventful.Store.Memory
 import           Eventful.UUID          (uuidFromText)
 import           Text.EmailAddress      (unsafeEmailAddress)
 
-import           Player
+import           Model.Player
 
 marcoId :: PlayerId
 marcoId = (PlayerId $ fromJust $ uuidFromText "c883a288-121f-4050-ac9c-13e1cfdd8490") -- unsafe!!
