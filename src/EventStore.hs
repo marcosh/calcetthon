@@ -11,7 +11,10 @@ import           Eventful.Store.Memory
 import           Eventful.UUID          (uuidFromText)
 import           Text.EmailAddress      (unsafeEmailAddress)
 
+import           Model.Email
 import           Model.Player
+import           Model.PlayerData
+import           Model.PlayerId
 
 marcoId :: PlayerId
 marcoId = (PlayerId $ fromJust $ uuidFromText "c883a288-121f-4050-ac9c-13e1cfdd8490") -- unsafe!!
@@ -24,7 +27,8 @@ marco = Player
         "Perone"
         "Marcosh"
         (fromGregorian 1983 11 14)
-        (unsafeEmailAddress "m.perone" "mvlabs.it") -- unsafe!!
+        (Email $ unsafeEmailAddress "m.perone" "mvlabs.it") -- unsafe!!
+        "password"
 
 
 andreaId :: PlayerId
@@ -38,7 +42,8 @@ andrea = Player
         "Cadorin"
         "Cado"
         (fromGregorian 1989 1 25)
-        (unsafeEmailAddress "a.cadorin" "mvlabs.it") -- unsafe!!
+        (Email $ unsafeEmailAddress "a.cadorin" "mvlabs.it") -- unsafe!!
+        "password"
 
 playersStoreExample :: IO ()
 playersStoreExample = do

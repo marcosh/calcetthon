@@ -5,13 +5,15 @@
 
 module Model.Game where
 
-import           Control.Lens ((&), (.~))
-import           Data.Aeson   (FromJSON, ToJSON)
-import           Data.Proxy   (Proxy (Proxy))
+import           Model.PlayerId
+
+import           Control.Lens   ((&), (.~))
+import           Data.Aeson     (FromJSON, ToJSON)
+import           Data.Proxy     (Proxy (Proxy))
 import           Data.Swagger
 import           Eventful
-import           GHC.Generics (Generic)
-import           Model.Player
+import           GHC.Generics   (Generic)
+
 import           Score
 
 newtype GameId = GameId { uuid_ :: UUID }

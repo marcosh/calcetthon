@@ -8,10 +8,21 @@ module Api where
 import           Model.Game
 import           Model.Model
 import           Model.Player
-import           ProcessManager              (processManager)
+import           Model.PlayerData
+import           Model.PlayerId
+
+import           ReadModel.Player            as RMPlayers (playersProjection)
+-- import           ProcessManager              (processManager)
 
 -- aeson
-import           Data.Aeson                  (FromJSON, ToJSON)
+import           Data.Aeson                  (ToJSON)
+import           Data.Aeson.Encode.Pretty
+
+-- bytestring
+import qualified Data.ByteString.Lazy.Char8  as BSL
+
+-- contravariant
+import           Data.Functor.Contravariant  (contramap)
 
 -- eventful-core
 import           Eventful
@@ -38,7 +49,7 @@ import           Database.Persist.Postgresql (createPostgresqlPool)
 -- servant-server
 import           Servant
 
-type API = "add-new-player" :> ReqBody '[JSON] PlayerData :> Post '[JSON] PlayerId
+type API = "add-new-player" :> ReqBody '[JSON] PlayerData :> Post '[JSON] Player
     :<|> "players" :> Get '[JSON] Players
     :<|> "record-game" :> ReqBody '[JSON] GameData :> Post '[JSON] GameId
     :<|> "game" :> Capture "gameId" UUID :> Get '[JSON] Game
@@ -52,19 +63,31 @@ calcetthonApi = addNewPlayerHandler
 reader :: VersionedEventStoreReader (SqlPersistT IO) CalcetthonEvent
 reader = serializedVersionedEventStoreReader jsonStringSerializer $ sqlEventStoreReader defaultSqlEventStoreConfig
 
-globalReader :: (FromJSON a, ToJSON a) => GlobalEventStoreReader (SqlPersistT IO) a
-globalReader = serializedGlobalEventStoreReader jsonStringSerializer $ sqlGlobalEventStoreReader defaultSqlEventStoreConfig
+-- globalReader :: (FromJSON a, ToJSON a) => GlobalEventStoreReader (SqlPersistT IO) a
+-- globalReader = serializedGlobalEventStoreReader jsonStringSerializer $ sqlGlobalEventStoreReader defaultSqlEventStoreConfig
 
 writer :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent
 writer = synchronousEventBusWrapper
     (serializedEventStoreWriter jsonStringSerializer $ postgresqlEventStoreWriter defaultSqlEventStoreConfig)
     -- [processManagerHandler]
-    []
+    [ eventPrinter
+    , readPlayersProjection
+    ]
 
-processManagerHandler :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
-processManagerHandler pmWriter _ _ = do
-    -- streamProjection <- getLatestStreamProjection globalReader (globalStreamProjection $ processManagerProjection processManager)
-    applyProcessManagerCommandsAndEvents processManager pmWriter reader ()
+eventPrinter :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
+eventPrinter _ uuid event = liftIO $ printJSONPretty (uuid, event)
+
+printJSONPretty :: (ToJSON a) => a -> IO ()
+printJSONPretty = BSL.putStrLn . encodePretty' defConfig
+
+readPlayersProjection :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
+readPlayersProjection eventStoreWriter uuid (CalcetthonPlayerEvent playerEvent) = RMPlayers.playersProjection (contramap CalcetthonPlayerEvent eventStoreWriter) uuid playerEvent
+readPlayersProjection _                _    _                                   = pure ()
+
+-- processManagerHandler :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
+-- processManagerHandler pmWriter _ _ =
+--     -- streamProjection <- getLatestStreamProjection globalReader (globalStreamProjection $ processManagerProjection processManager)
+--     applyProcessManagerCommandsAndEvents processManager pmWriter reader ()
 
 -- PLAYERS
 
@@ -72,16 +95,16 @@ pool :: IO (Pool SqlBackend)
 pool = runStderrLoggingT $ createPostgresqlPool conn 10 where
     conn = "host=localhost dbname=calcetthon user=calcetthon password=calcetthon port=5432"
 
-addNewPlayerHandler :: PlayerData -> Handler PlayerId
+addNewPlayerHandler :: PlayerData -> Handler Player
 addNewPlayerHandler playerData = do
     uuid <- liftIO uuidNextRandom
     let
         playerId = PlayerId uuid
-        streamUuid = read "123e4567-e89b-12d3-a456-426655440000" -- id of the stream of events
+        -- streamUuid = read "123e4567-e89b-12d3-a456-426655440000" -- id of the stream of events
     -- this should be done asyncronously
-    _ <- liftIO $ runSqlPool (commandStoredAggregate writer reader calcetthonPlayersAggregate streamUuid $ CalcetthonPlayerCommand $ AddNewPlayer playerId playerData) =<< pool
+    _ <- liftIO $ runSqlPool (commandStoredAggregate writer reader calcetthonPlayersAggregate uuid $ CalcetthonPlayerCommand $ AddNewPlayer playerId playerData) =<< pool
     --- end of async part
-    return $ PlayerId uuid
+    return $ Player (PlayerId uuid) playerData
 
 playersHandler :: Handler Players
 playersHandler = do

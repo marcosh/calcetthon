@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6b758d8469297a3c4407a3d6ee19fd1a211d82a9912ed02f903cd173e1ce765d
+-- hash: 1ae3c0499e48326533870d4b57b0663b99d3bc54e97ae3e6ddd6fefa073ad7a3
 
 name:           calcetthon
 version:        0.1.0.0
@@ -21,9 +21,11 @@ library
       src
   build-depends:
       aeson
+    , aeson-pretty
     , base >=4.7 && <5
     , bytestring
     , conduit
+    , contravariant
     , emailaddress
     , eventful-core
     , eventful-memory
@@ -41,10 +43,12 @@ library
     , servant-swagger
     , stm
     , swagger2
+    , text
     , time
     , transformers
     , wai
     , wai-cors
+    , wai-extra
     , warp
   exposed-modules:
       Lib
@@ -52,10 +56,14 @@ library
       Api
       EventStore
       Migrations
+      Model.Email
       Model.Game
       Model.Model
       Model.Player
+      Model.PlayerData
+      Model.PlayerId
       ProcessManager
+      ReadModel.Player
       Score
       Paths_calcetthon
   default-language: Haskell2010

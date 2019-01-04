@@ -1,42 +1,89 @@
 {-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE OverloadedLists   #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Model.Player where
 
-import           Control.Lens
-import           Data.Aeson         (FromJSON, ToJSON)
-import           Data.String        ()
-import           Data.Swagger
-import           Data.Time.Calendar (Day)
-import           Eventful
+import           Model.Email
+import           Model.PlayerData
+import           Model.PlayerId
+
+-- aeson
+import           Data.Aeson         (FromJSON, ToJSON, object, toJSON, (.=))
+
+-- base
+import           Data.Proxy         (Proxy (Proxy))
 import           GHC.Generics       (Generic)
-import           Text.EmailAddress  (EmailAddress)
 
-instance ToSchema EmailAddress where
-    declareNamedSchema _ = return $ NamedSchema (Just "email") $ mempty
-        & type_ .~ SwaggerString
-        & description ?~ "email"
-        & format ?~ "email"
-        & example ?~ "gigi@zucon.com"
+-- eventful-core
+import           Eventful           (Aggregate (Aggregate),
+                                     Projection (Projection),
+                                     projectionEventHandler, projectionSeed)
 
-newtype PlayerId = PlayerId { uuid_ :: UUID }
-    deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
+-- lens
+import           Control.Lens       ((&), (.~), (?~))
 
-data PlayerData = PlayerData
-    { name      :: String
-    , surname   :: String
-    , nickname  :: String
-    , birthDate :: Day
-    , email     :: EmailAddress
-    }
-    deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
+-- swagger2
+import           Data.Swagger       (NamedSchema (NamedSchema),
+                                     SwaggerType (SwaggerObject), ToSchema,
+                                     declareNamedSchema, declareSchemaRef,
+                                     description, properties, type_)
+
+-- time
+import           Data.Time.Calendar (Day)
 
 data Player = Player
     { playerId_   :: PlayerId
     , playerData_ :: PlayerData
     }
-    deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
+    deriving (Eq, Show, Generic, FromJSON)
+
+instance ToJSON Player where
+    toJSON (Player playerId playerData) = object
+        [ "id"        .= playerId
+        , "email"     .= email playerData
+        , "name"      .= name playerData
+        , "surname"   .= surname playerData
+        , "nickname"  .= nickname playerData
+        , "birthDate" .= birthDate playerData
+        ]
+
+instance ToSchema Player where
+    declareNamedSchema _ = do
+        idSchema     <- declareSchemaRef (Proxy :: Proxy PlayerId)
+        stringSchema <- declareSchemaRef (Proxy :: Proxy String  )
+        daySchema    <- declareSchemaRef (Proxy :: Proxy Day     )
+        emailSchema  <- declareSchemaRef (Proxy :: Proxy Email   )
+        return $ NamedSchema (Just "player") $ mempty
+            & type_ .~ SwaggerObject
+            & description ?~ "player"
+            & properties .~
+                [ ("id"       , idSchema    )
+                , ("name"     , stringSchema)
+                , ("surname"  , stringSchema)
+                , ("nickname" , stringSchema)
+                , ("birthDate", daySchema   )
+                , ("email"    , emailSchema )
+                ]
+
+playerUuid :: Player -> PlayerId
+playerUuid (Player playerId _) = playerId
+
+playerName :: Player -> String
+playerName (Player _ playerData) = name playerData
+
+playerSurname :: Player -> String
+playerSurname (Player _ playerData) = surname playerData
+
+playerNickname :: Player -> String
+playerNickname (Player _ playerData) = nickname playerData
+
+playerBirthDate :: Player -> Day
+playerBirthDate (Player _ playerData) = birthDate playerData
+
+playerEmail :: Player -> Email
+playerEmail (Player _ playerData) = email playerData
 
 replacePlayer :: Player -> Player -> Player
 replacePlayer newPlayer oldPlayer = if playerId_ oldPlayer == playerId_ newPlayer then newPlayer else oldPlayer
@@ -45,7 +92,7 @@ hasPlayerId :: PlayerId -> Player -> Bool
 hasPlayerId pId player = pId == playerId_ player
 
 newtype Players = Players { list :: [Player] }
-    deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
+    deriving (Eq, Show, Generic, ToJSON, ToSchema)
 
 -- COMMANDS
 

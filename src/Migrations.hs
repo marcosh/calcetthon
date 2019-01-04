@@ -11,7 +11,6 @@ module Migrations where
 import           Text.EmailAddress    (EmailAddress)
 
 -- persistent
-import           Database.Persist
 import           Database.Persist.Sql
 
 -- persistent-template
@@ -22,6 +21,7 @@ import           Data.Time.Calendar   (Day)
 
 share [mkPersist sqlSettings, mkMigrate "migrateReadModel"] [persistLowerCase|
 Players
+    uuid String
     name String
     surname String
     nickname String

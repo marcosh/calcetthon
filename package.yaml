@@ -12,9 +12,11 @@ library:
   - Lib
   dependencies:
   - aeson
+  - aeson-pretty
   - base >=4.7 && <5
   - bytestring
   - conduit
+  - contravariant
   - emailaddress
   - eventful-core
   - eventful-memory
@@ -32,10 +34,12 @@ library:
   - servant-swagger
   - stm
   - swagger2
+  - text
   - time
   - transformers
   - wai
   - wai-cors
+  - wai-extra
   - warp
 executables:
   calcetthon-exe:
