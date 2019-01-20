@@ -87,10 +87,10 @@
             "type": "object",
             "properties": {
                 "defence": {
-                    "$ref": "#/definitions/PlayerId"
+                    "$ref": "#/definitions/playerId"
                 },
                 "attack": {
-                    "$ref": "#/definitions/PlayerId"
+                    "$ref": "#/definitions/playerId"
                 }
             }
         },
@@ -102,41 +102,23 @@
             "properties": {
                 "list": {
                     "items": {
-                        "$ref": "#/definitions/Player"
+                        "$ref": "#/definitions/player"
                     },
                     "type": "array"
                 }
             }
         },
-        "Player": {
-            "required": [
-                "playerId_",
-                "playerData_"
-            ],
+        "playerData": {
             "type": "object",
-            "properties": {
-                "playerData_": {
-                    "$ref": "#/definitions/PlayerData"
-                },
-                "playerId_": {
-                    "$ref": "#/definitions/PlayerId"
-                }
-            }
-        },
-        "PlayerData": {
-            "required": [
-                "name",
-                "surname",
-                "nickname",
-                "birthDate",
-                "email"
-            ],
-            "type": "object",
+            "description": "data of a player",
             "properties": {
                 "email": {
                     "$ref": "#/definitions/email"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "nickname": {
@@ -150,16 +132,35 @@
                 }
             }
         },
-        "PlayerId": {
-            "required": [
-                "uuid_"
-            ],
+        "player": {
             "type": "object",
+            "description": "player",
             "properties": {
-                "uuid_": {
-                    "$ref": "#/definitions/UUID"
+                "email": {
+                    "$ref": "#/definitions/email"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "id": {
+                    "$ref": "#/definitions/playerId"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                },
+                "birthDate": {
+                    "$ref": "#/definitions/Day"
                 }
             }
+        },
+        "playerId": {
+            "example": "a2e2ef2a-ca1b-4038-8767-b196ea4516af",
+            "format": "uuid",
+            "type": "string",
+            "description": "playerId"
         }
     },
     "paths": {
@@ -201,7 +202,7 @@
                     },
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/PlayerId"
+                            "$ref": "#/definitions/player"
                         },
                         "description": ""
                     }
@@ -213,7 +214,7 @@
                     {
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/PlayerData"
+                            "$ref": "#/definitions/playerData"
                         },
                         "in": "body",
                         "name": "body"

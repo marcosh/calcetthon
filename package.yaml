@@ -14,6 +14,7 @@ library:
   - aeson
   - aeson-pretty
   - base >=4.7 && <5
+  - bcrypt
   - bytestring
   - conduit
   - contravariant

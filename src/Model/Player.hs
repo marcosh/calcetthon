@@ -85,6 +85,9 @@ playerBirthDate (Player _ playerData) = birthDate playerData
 playerEmail :: Player -> Email
 playerEmail (Player _ playerData) = email playerData
 
+playerPassword :: Player -> String
+playerPassword (Player _ playerData) = password playerData
+
 replacePlayer :: Player -> Player -> Player
 replacePlayer newPlayer oldPlayer = if playerId_ oldPlayer == playerId_ newPlayer then newPlayer else oldPlayer
 

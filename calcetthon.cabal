@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1ae3c0499e48326533870d4b57b0663b99d3bc54e97ae3e6ddd6fefa073ad7a3
+-- hash: abd6def9b6204a794a81a289a16b72d5064d4f91573835941e9f45f314ff1a3d
 
 name:           calcetthon
 version:        0.1.0.0
@@ -23,6 +23,7 @@ library
       aeson
     , aeson-pretty
     , base >=4.7 && <5
+    , bcrypt
     , bytestring
     , conduit
     , contravariant

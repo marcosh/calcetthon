@@ -6,22 +6,29 @@ module Model.PlayerData where
 import           Model.Email
 
 -- aeson
-import           Data.Aeson         (FromJSON, parseJSON, withObject, (.:))
+import           Data.Aeson            (FromJSON, parseJSON, withObject, (.:))
 
 -- base
-import           Data.Proxy         (Proxy (Proxy))
+import           Data.Proxy            (Proxy (Proxy))
+
+-- bcrypt
+import           Crypto.BCrypt         (fastBcryptHashingPolicy,
+                                        hashPasswordUsingPolicy)
+
+-- bytestring
+import           Data.ByteString.Char8 (pack, unpack)
 
 -- lens
-import           Control.Lens       ((&), (.~), (?~))
+import           Control.Lens          ((&), (.~), (?~))
 
 -- swagger2
-import           Data.Swagger       (NamedSchema (NamedSchema),
-                                     SwaggerType (SwaggerObject), ToSchema,
-                                     declareNamedSchema, declareSchemaRef,
-                                     description, properties, type_)
+import           Data.Swagger          (NamedSchema (NamedSchema),
+                                        SwaggerType (SwaggerObject), ToSchema,
+                                        declareNamedSchema, declareSchemaRef,
+                                        description, properties, type_)
 
 -- time
-import           Data.Time.Calendar (Day)
+import           Data.Time.Calendar    (Day)
 
 data PlayerData = PlayerData
     { name      :: String
@@ -58,3 +65,8 @@ instance ToSchema PlayerData where
                 , ("email"    , emailSchema )
                 , ("password" , stringSchema)
                 ]
+
+hashPassword :: PlayerData -> IO (Maybe PlayerData)
+hashPassword (PlayerData name' surname' nickname' birthDate' email' password') = do
+    hashedPassword <- hashPasswordUsingPolicy fastBcryptHashingPolicy (pack password')
+    pure $ PlayerData name' surname' nickname' birthDate' email' . unpack <$> hashedPassword

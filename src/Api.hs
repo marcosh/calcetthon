@@ -11,7 +11,8 @@ import           Model.Player
 import           Model.PlayerData
 import           Model.PlayerId
 
-import           ReadModel.Player            as RMPlayers (playersProjection)
+import           ReadModel.Player            as RMPlayers (allPlayers,
+                                                           playersProjection)
 -- import           ProcessManager              (processManager)
 
 -- aeson
@@ -101,16 +102,21 @@ addNewPlayerHandler playerData = do
     let
         playerId = PlayerId uuid
         -- streamUuid = read "123e4567-e89b-12d3-a456-426655440000" -- id of the stream of events
+    maybePlayerDataHashed <- liftIO $ hashPassword playerData
+    case maybePlayerDataHashed of
+        Nothing               -> throwError $ err500 { errBody = "unable to hash the provided password" }
+        Just playerDataHashed -> do
     -- this should be done asyncronously
-    _ <- liftIO $ runSqlPool (commandStoredAggregate writer reader calcetthonPlayersAggregate uuid $ CalcetthonPlayerCommand $ AddNewPlayer playerId playerData) =<< pool
+            _ <- liftIO $ runSqlPool
+                (commandStoredAggregate writer reader calcetthonPlayersAggregate uuid $ CalcetthonPlayerCommand $ AddNewPlayer playerId playerDataHashed) =<< pool
     --- end of async part
-    return $ Player (PlayerId uuid) playerData
+            return $ Player (PlayerId uuid) playerData
 
 playersHandler :: Handler Players
-playersHandler = do
-    let uuid = read "123e4567-e89b-12d3-a456-426655440000"
-    events <- liftIO $ runSqlPool (getEvents reader (allEvents uuid)) =<< pool
-    return $ latestProjection calcetthonPlayersProjection $ fmap streamEventEvent events
+playersHandler = liftIO $ runSqlPool allPlayers =<< pool
+    -- let uuid = read "123e4567-e89b-12d3-a456-426655440000"
+    -- events <- liftIO $ runSqlPool (getEvents reader (allEvents uuid)) =<< pool
+    -- return $ latestProjection calcetthonPlayersProjection $ fmap streamEventEvent events
 
 -- GAME
 
