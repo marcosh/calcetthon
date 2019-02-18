@@ -5,19 +5,25 @@
 
 module Model.Game where
 
+import           Model.GameId
 import           Model.PlayerId
-
-import           Control.Lens   ((&), (.~))
-import           Data.Aeson     (FromJSON, ToJSON)
-import           Data.Proxy     (Proxy (Proxy))
-import           Data.Swagger
-import           Eventful
-import           GHC.Generics   (Generic)
-
 import           Score
 
-newtype GameId = GameId { uuid_ :: UUID }
-    deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
+-- aeson
+import           Data.Aeson     (FromJSON, ToJSON)
+
+-- base
+import           Data.Proxy     (Proxy (Proxy))
+import           GHC.Generics   (Generic)
+
+-- lens
+import           Control.Lens   ((&), (.~))
+
+-- swagger2
+import           Data.Swagger
+
+-- eventful-core
+import           Eventful
 
 data Team = Team
     { defence :: PlayerId
@@ -37,9 +43,19 @@ data GameData = GameData
     }
     deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
-data Game
-    = NoGame
-    | Game GameId GameData
+winning :: GameData -> TeamData
+winning (GameData red blue) =
+    if score red >= score blue
+    then red
+    else blue
+
+losing :: GameData -> TeamData
+losing (GameData red blue) =
+    if score red >= score blue
+    then blue
+    else red
+
+data Game = Game GameId GameData
     deriving (Eq, Show, Generic, FromJSON, ToJSON)
 
 instance ToSchema Game where
@@ -58,8 +74,8 @@ instance ToSchema Game where
 data GameCommand
     = ConcludeGame GameId GameData
 
-gameCommandHandler :: Game -> GameCommand -> [GameEvent]
-gameCommandHandler NoGame (ConcludeGame gameId gameData) = [GameConcluded $ Game gameId gameData]
+gameCommandHandler :: Maybe Game -> GameCommand -> [GameEvent]
+gameCommandHandler Nothing (ConcludeGame gameId gameData) = [GameConcluded $ Game gameId gameData]
 gameCommandHandler _ (ConcludeGame _ _) = []
 
 -- EVENTS
@@ -68,17 +84,17 @@ data GameEvent
     = GameConcluded Game
     deriving (Eq, Show, Generic, FromJSON, ToJSON)
 
-handleGameEvent :: Game -> GameEvent -> Game
-handleGameEvent NoGame (GameConcluded game) = game
-handleGameEvent game _                      = game
+handleGameEvent :: Maybe Game -> GameEvent -> Maybe Game
+handleGameEvent Nothing   (GameConcluded game) = Just game
+handleGameEvent maybeGame _                    = maybeGame
 
-gameProjection :: Projection Game GameEvent
+gameProjection :: Projection (Maybe Game) GameEvent
 gameProjection = Projection
-    { projectionSeed = NoGame
+    { projectionSeed = Nothing
     , projectionEventHandler = handleGameEvent
     }
 
 -- AGGREGATE
 
-gameAggregate :: Aggregate Game GameEvent GameCommand
+gameAggregate :: Aggregate (Maybe Game) GameEvent GameCommand
 gameAggregate = Aggregate gameCommandHandler gameProjection

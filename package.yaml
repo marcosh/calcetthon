@@ -23,9 +23,11 @@ library:
   - eventful-memory
   - eventful-postgresql
   - eventful-sql-common
+  - http-api-data
   - lens
   - monad-logger
   - mtl
+  - path-pieces
   - persistent
   - persistent-postgresql
   - persistent-template

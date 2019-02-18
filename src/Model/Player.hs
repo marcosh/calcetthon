@@ -10,28 +10,29 @@ import           Model.PlayerData
 import           Model.PlayerId
 
 -- aeson
-import           Data.Aeson         (FromJSON, ToJSON, object, toJSON, (.=))
+import           Data.Aeson            (FromJSON, ToJSON, object, toJSON, (.=))
 
 -- base
-import           Data.Proxy         (Proxy (Proxy))
-import           GHC.Generics       (Generic)
+import           Data.Proxy            (Proxy (Proxy))
+import           GHC.Generics          (Generic)
 
 -- eventful-core
-import           Eventful           (Aggregate (Aggregate),
-                                     Projection (Projection),
-                                     projectionEventHandler, projectionSeed)
+import           Eventful              (Aggregate (Aggregate),
+                                        Projection (Projection),
+                                        projectionEventHandler, projectionSeed)
 
 -- lens
-import           Control.Lens       ((&), (.~), (?~))
+import           Control.Lens          ((&), (.~), (?~))
 
 -- swagger2
-import           Data.Swagger       (NamedSchema (NamedSchema),
-                                     SwaggerType (SwaggerObject), ToSchema,
-                                     declareNamedSchema, declareSchemaRef,
-                                     description, properties, type_)
+import           Data.Swagger          (NamedSchema (NamedSchema), SwaggerType (SwaggerArray, SwaggerObject),
+                                        ToSchema, declareNamedSchema,
+                                        declareSchemaRef, description, items,
+                                        properties, type_)
+import           Data.Swagger.Internal (SwaggerItems (SwaggerItemsObject))
 
 -- time
-import           Data.Time.Calendar (Day)
+import           Data.Time.Calendar    (Day)
 
 data Player = Player
     { playerId_   :: PlayerId
@@ -95,7 +96,17 @@ hasPlayerId :: PlayerId -> Player -> Bool
 hasPlayerId pId player = pId == playerId_ player
 
 newtype Players = Players { list :: [Player] }
-    deriving (Eq, Show, Generic, ToJSON, ToSchema)
+    deriving (Eq, Show)
+
+instance ToJSON Players where
+    toJSON (Players playersList) = toJSON playersList
+
+instance ToSchema Players where
+    declareNamedSchema _ = do
+        playerSchema <- declareSchemaRef (Proxy :: Proxy Player)
+        return $ NamedSchema (Just "Players") $ mempty
+            & type_ .~ SwaggerArray
+            & items ?~ SwaggerItemsObject playerSchema
 
 -- COMMANDS
 

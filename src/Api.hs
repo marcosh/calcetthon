@@ -6,11 +6,13 @@
 module Api where
 
 import           Model.Game
+import           Model.GameId
 import           Model.Model
 import           Model.Player
 import           Model.PlayerData
 import           Model.PlayerId
 
+import           ReadModel.Game              as RMGames (gamesProjection)
 import           ReadModel.Player            as RMPlayers (allPlayers,
                                                            playersProjection)
 -- import           ProcessManager              (processManager)
@@ -53,7 +55,7 @@ import           Servant
 type API = "add-new-player" :> ReqBody '[JSON] PlayerData :> Post '[JSON] Player
     :<|> "players" :> Get '[JSON] Players
     :<|> "record-game" :> ReqBody '[JSON] GameData :> Post '[JSON] GameId
-    :<|> "game" :> Capture "gameId" UUID :> Get '[JSON] Game
+    :<|> "game" :> Capture "gameId" UUID :> Get '[JSON] (Maybe Game)
 
 calcetthonApi :: Server API
 calcetthonApi = addNewPlayerHandler
@@ -73,6 +75,7 @@ writer = synchronousEventBusWrapper
     -- [processManagerHandler]
     [ eventPrinter
     , readPlayersProjection
+    , readGamesProjection
     ]
 
 eventPrinter :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
@@ -84,6 +87,10 @@ printJSONPretty = BSL.putStrLn . encodePretty' defConfig
 readPlayersProjection :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
 readPlayersProjection eventStoreWriter uuid (CalcetthonPlayerEvent playerEvent) = RMPlayers.playersProjection (contramap CalcetthonPlayerEvent eventStoreWriter) uuid playerEvent
 readPlayersProjection _                _    _                                   = pure ()
+
+readGamesProjection :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
+readGamesProjection eventStoreWriter uuid (CalcetthonGameEvent gameEvent) = RMGames.gamesProjection (contramap CalcetthonGameEvent eventStoreWriter) uuid gameEvent
+readGamesProjection _                _    _                               = pure ()
 
 -- processManagerHandler :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
 -- processManagerHandler pmWriter _ _ =
@@ -131,7 +138,7 @@ recordGameHandler gameData = do
     -- end of async part
     return $ GameId uuid
 
-gameHandler :: UUID -> Handler Game
+gameHandler :: UUID -> Handler (Maybe Game)
 gameHandler gameId = do
     --let streamUuid = read "ae55b01f-ece8-40d5-acc0-fc5afefda9f1"
     events <- liftIO $ runSqlPool (getEvents reader (allEvents gameId)) =<< pool

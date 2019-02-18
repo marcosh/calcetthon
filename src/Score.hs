@@ -24,6 +24,27 @@ data Score
     | Six
     deriving (Eq, Show, Generic)
 
+instance Ord Score where
+    Zero  <= _    = True
+    One   <= Zero = False
+    One   <= _    = True
+    Two   <= Zero = False
+    Two   <= One  = False
+    Two   <= _    = True
+    Three <= Zero = False
+    Three <= One  = False
+    Three <= Two  = False
+    Three <= _    = True
+    Four  <= Four = True
+    Four  <= Five = True
+    Four  <= Six  = True
+    Four  <= _    = False
+    Five  <= Five = True
+    Five  <= Six  = True
+    Five  <= _    = False
+    Six   <= Six  = True
+    Six   <= _    = False
+
 intToScore :: Int -> Maybe Score
 intToScore 0 = Just Zero
 intToScore 1 = Just One

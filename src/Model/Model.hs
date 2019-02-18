@@ -48,7 +48,7 @@ calcetthonPlayersAggregate = serializedAggregate playersAggregate playersEventSe
         playersEventSerialized = simpleSerializer CalcetthonPlayerEvent deserializeCalcetthonPlayerEvent
         playersCommandSerializer = simpleSerializer CalcetthonPlayerCommand deserializeCalcetthonPlayerCommand
 
-calcetthonGameAggregate :: Aggregate Game CalcetthonEvent CalcetthonCommand
+calcetthonGameAggregate :: Aggregate (Maybe Game) CalcetthonEvent CalcetthonCommand
 calcetthonGameAggregate = serializedAggregate gameAggregate gameEventSerialized gameCommandSerializer
     where
         gameEventSerialized = simpleSerializer CalcetthonGameEvent deserializeCalcetthonGameEvent
@@ -61,10 +61,10 @@ calcetthonPlayersProjection = Projection (projectionSeed playersProjection) hand
         handleCalcetthonPlayersEvent players (CalcetthonPlayerEvent event) = (projectionEventHandler playersProjection) players event
         handleCalcetthonPlayersEvent players _ = players
 
-calcetthonGameProjection :: Projection Game CalcetthonEvent
+calcetthonGameProjection :: Projection (Maybe Game) CalcetthonEvent
 calcetthonGameProjection = Projection (projectionSeed gameProjection) handleCalcetthonGameEvent
     where
-        handleCalcetthonGameEvent :: Game -> CalcetthonEvent -> Game
-        handleCalcetthonGameEvent game (CalcetthonGameEvent event) = (projectionEventHandler gameProjection) game event
+        handleCalcetthonGameEvent :: Maybe Game -> CalcetthonEvent -> Maybe Game
+        handleCalcetthonGameEvent game (CalcetthonGameEvent event) = projectionEventHandler gameProjection game event
         handleCalcetthonGameEvent game _ = game
 

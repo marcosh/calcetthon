@@ -1,8 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: abd6def9b6204a794a81a289a16b72d5064d4f91573835941e9f45f314ff1a3d
+-- hash: 439d35f19520cdd608482f6c45f4d8a7dd8461ebb65aee71b11bb50d245e6e46
 
 name:           calcetthon
 version:        0.1.0.0
@@ -11,8 +13,6 @@ author:         Marco Perone
 maintainer:     m.perone@mvlabs.it
 copyright:      2018 MVLabs
 build-type:     Simple
-cabal-version:  >= 1.10
-
 extra-source-files:
     README.md
 
@@ -32,9 +32,11 @@ library
     , eventful-memory
     , eventful-postgresql
     , eventful-sql-common
+    , http-api-data
     , lens
     , monad-logger
     , mtl
+    , path-pieces
     , persistent
     , persistent-postgresql
     , persistent-template
@@ -59,11 +61,13 @@ library
       Migrations
       Model.Email
       Model.Game
+      Model.GameId
       Model.Model
       Model.Player
       Model.PlayerData
       Model.PlayerId
       ProcessManager
+      ReadModel.Game
       ReadModel.Player
       Score
       Paths_calcetthon

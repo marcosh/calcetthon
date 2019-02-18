@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Model.PlayerId where
+module Model.GameId where
 
 -- aeson
 import           Data.Aeson             (FromJSON, ToJSON, parseJSON, toJSON,
@@ -29,7 +29,7 @@ import           Database.Persist.Sql   (PersistFieldSql, sqlType)
 import           Database.Persist.Types (PersistValue (..), SqlType (..))
 
 -- swagger2
-import           Data.Swagger           (NamedSchema (NamedSchema),
+import           Data.Swagger           (NamedSchema (..),
                                          SwaggerType (SwaggerString), ToSchema,
                                          declareNamedSchema, description,
                                          example, format, type_)
@@ -37,45 +37,44 @@ import           Data.Swagger           (NamedSchema (NamedSchema),
 -- text
 import           Data.Text.Encoding     (decodeUtf8, encodeUtf8)
 
-newtype PlayerId = PlayerId { uuid_ :: UUID }
+newtype GameId = GameId { uuid_ :: UUID }
     deriving (Eq, Ord, Show)
 
-instance Read PlayerId where
-    readPrec = PlayerId <$> readPrec
+instance Read GameId where
+    readPrec = GameId <$> readPrec
 
-instance FromJSON PlayerId where
-    parseJSON = withText "PlayerId" $ \playerId
-        -> maybe (fail "invalid UUID") (pure . PlayerId) (uuidFromText playerId)
+instance FromJSON GameId where
+    parseJSON = withText "GameId" $ \gameId
+        -> maybe (fail "invalid UUID") (pure . GameId) (uuidFromText gameId)
 
-instance ToJSON PlayerId where
-    toJSON (PlayerId uuid) = toJSON uuid
+instance ToJSON GameId where
+    toJSON (GameId uuid) = toJSON uuid
 
-instance ToSchema PlayerId where
-    declareNamedSchema _ = return $ NamedSchema (Just "playerId") $ mempty
+instance ToSchema GameId where
+    declareNamedSchema _ = return $ NamedSchema (Just "gameId") $ mempty
         & type_ .~ SwaggerString
-        & description ?~ "playerId"
+        & description ?~ "gameId"
         & format ?~ "uuid"
         & example ?~ "a2e2ef2a-ca1b-4038-8767-b196ea4516af"
 
-instance PersistField PlayerId where
-    toPersistValue playerId = PersistDbSpecific $ (encodeUtf8 . uuidToText . uuid_) playerId
+instance PersistField GameId where
+    toPersistValue gameId = PersistDbSpecific $ (encodeUtf8 . uuidToText . uuid_) gameId
 
     fromPersistValue (PersistDbSpecific uuidBs) = maybe
         (Left "impossible to parse as a uuid")
         Right
-        (PlayerId <$> (uuidFromText . decodeUtf8) uuidBs)
+        (GameId <$> (uuidFromText . decodeUtf8) uuidBs)
     fromPersistValue _ = Left "unexpected field type. UUID required"
 
-
-instance PersistFieldSql PlayerId where
+instance PersistFieldSql GameId where
     sqlType _ = SqlOther "UUID"
 
-instance PathPiece PlayerId where
-    fromPathPiece t = PlayerId <$> uuidFromText t
+instance PathPiece GameId where
+    fromPathPiece t = GameId <$> uuidFromText t
     toPathPiece     = uuidToText . uuid_
 
-instance ToHttpApiData PlayerId where
+instance ToHttpApiData GameId where
     toUrlPiece = uuidToText . uuid_
 
-instance FromHttpApiData PlayerId where
-    parseUrlPiece playerId = maybe (fail "invalid UUID") (pure . PlayerId) (uuidFromText playerId)
+instance FromHttpApiData GameId where
+    parseUrlPiece gameId = maybe (fail "invalid UUID") (pure . GameId) (uuidFromText gameId)
