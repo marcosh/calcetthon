@@ -19,7 +19,6 @@ import           Eventful     (Aggregate, Projection (..), serializedAggregate,
 data CalcetthonCommand
     = CalcetthonPlayerCommand PlayerCommand
     | CalcetthonGameCommand GameCommand
-    -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
 
 deserializeCalcetthonPlayerCommand :: CalcetthonCommand -> Maybe PlayerCommand
 deserializeCalcetthonPlayerCommand (CalcetthonPlayerCommand command) = Just command
