@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 439d35f19520cdd608482f6c45f4d8a7dd8461ebb65aee71b11bb50d245e6e46
+-- hash: 2b21c69018380597f73e705d853a7a69f96676dc3383d7ad5e6aef9014f54534
 
 name:           calcetthon
 version:        0.1.0.0
@@ -66,6 +66,7 @@ library
       Model.Player
       Model.PlayerData
       Model.PlayerId
+      Model.Team
       ProcessManager
       ReadModel.Game
       ReadModel.Player

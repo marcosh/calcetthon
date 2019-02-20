@@ -6,36 +6,23 @@
 module Model.Game where
 
 import           Model.GameId
-import           Model.PlayerId
-import           Score
+import           Model.Team
 
 -- aeson
-import           Data.Aeson     (FromJSON, ToJSON)
+import           Data.Aeson   (FromJSON, ToJSON)
 
 -- base
-import           Data.Proxy     (Proxy (Proxy))
-import           GHC.Generics   (Generic)
+import           Data.Proxy   (Proxy (Proxy))
+import           GHC.Generics (Generic)
 
 -- lens
-import           Control.Lens   ((&), (.~))
+import           Control.Lens ((&), (.~))
 
 -- swagger2
 import           Data.Swagger
 
 -- eventful-core
 import           Eventful
-
-data Team = Team
-    { defence :: PlayerId
-    , attack  :: PlayerId
-    }
-    deriving (Eq, Show, Generic, ToJSON, FromJSON, ToSchema)
-
-data TeamData = TeamData
-    { team  :: Team
-    , score :: Score
-    }
-    deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
 data GameData = GameData
     { redTeam  :: TeamData
