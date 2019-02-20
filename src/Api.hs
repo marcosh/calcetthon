@@ -54,7 +54,7 @@ import           Servant
 
 type API = "add-new-player" :> ReqBody '[JSON] PlayerData :> Post '[JSON] Player
     :<|> "players" :> Get '[JSON] Players
-    :<|> "record-game" :> ReqBody '[JSON] GameData :> Post '[JSON] GameId
+    :<|> "record-game" :> ReqBody '[JSON] GameData :> Post '[JSON] Game
     :<|> "game" :> Capture "gameId" UUID :> Get '[JSON] (Maybe Game)
 
 calcetthonApi :: Server API
@@ -127,7 +127,7 @@ playersHandler = liftIO $ runSqlPool allPlayers =<< pool
 
 -- GAME
 
-recordGameHandler :: GameData -> Handler GameId
+recordGameHandler :: GameData -> Handler Game
 recordGameHandler gameData = do
     uuid <- liftIO uuidNextRandom
     let
@@ -136,7 +136,9 @@ recordGameHandler gameData = do
     -- this should be done asynchronously
     _ <- liftIO $ runSqlPool (commandStoredAggregate writer reader calcetthonGameAggregate uuid $ CalcetthonGameCommand $ ConcludeGame gameId gameData) =<< pool
     -- end of async part
-    return $ GameId uuid
+    return $ Game
+        (GameId uuid)
+        gameData
 
 gameHandler :: UUID -> Handler (Maybe Game)
 gameHandler gameId = do
