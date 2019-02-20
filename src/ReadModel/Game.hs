@@ -2,6 +2,7 @@ module ReadModel.Game where
 
 import           Migrations
 import           Model.Game
+import           Model.Team
 import           Score
 
 -- eventful-core

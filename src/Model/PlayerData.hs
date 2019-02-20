@@ -41,7 +41,7 @@ data PlayerData = PlayerData
     deriving (Eq, Show)
 
 instance FromJSON PlayerData where
-    parseJSON = withObject "Player" $ \p -> PlayerData
+    parseJSON = withObject "PlayerData" $ \p -> PlayerData
         <$> p .: "name"
         <*> p .: "surname"
         <*> p .: "nickname"

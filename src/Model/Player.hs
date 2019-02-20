@@ -10,7 +10,9 @@ import           Model.PlayerData
 import           Model.PlayerId
 
 -- aeson
-import           Data.Aeson            (FromJSON, ToJSON, object, toJSON, (.=))
+import           Data.Aeson            (FromJSON, ToJSON, Value (Object),
+                                        object, parseJSON, toJSON, withObject,
+                                        (.:), (.=))
 
 -- base
 import           Data.Proxy            (Proxy (Proxy))
@@ -38,7 +40,12 @@ data Player = Player
     { playerId_   :: PlayerId
     , playerData_ :: PlayerData
     }
-    deriving (Eq, Show, Generic, FromJSON)
+    deriving (Eq, Show)
+
+instance FromJSON Player where
+    parseJSON = withObject "Player" $ \p -> Player
+        <$> p .: "id"
+        <*> parseJSON (Object p)
 
 instance ToJSON Player where
     toJSON (Player playerId playerData) = object
