@@ -55,7 +55,7 @@ import           Servant
 type API = "add-new-player" :> ReqBody '[JSON] PlayerData :> Post '[JSON] Player
     :<|> "players" :> Get '[JSON] Players
     :<|> "record-game" :> ReqBody '[JSON] GameData :> Post '[JSON] Game
-    :<|> "game" :> Capture "gameId" UUID :> Get '[JSON] (Maybe Game)
+    :<|> "game" :> Capture "gameId" UUID :> Get '[JSON] Game
 
 calcetthonApi :: Server API
 calcetthonApi = addNewPlayerHandler
@@ -140,8 +140,12 @@ recordGameHandler gameData = do
         (GameId uuid)
         gameData
 
-gameHandler :: UUID -> Handler (Maybe Game)
+gameHandler :: UUID -> Handler Game
 gameHandler gameId = do
     --let streamUuid = read "ae55b01f-ece8-40d5-acc0-fc5afefda9f1"
     events <- liftIO $ runSqlPool (getEvents reader (allEvents gameId)) =<< pool
-    return $ latestProjection calcetthonGameProjection $ fmap streamEventEvent events
+    let maybeGame = latestProjection calcetthonGameProjection $ fmap streamEventEvent events
+    maybe
+        (throwError $ err404 {errBody = "game not found"})
+        return
+        maybeGame
