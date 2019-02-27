@@ -33,16 +33,16 @@ Players
 
 Games
     uuid          GameId
-    winnerAttack  PlayerId
-    winnerDefence PlayerId
-    winnerScore   Int
-    loserAttack   PlayerId
-    loserDefence  PlayerId
-    loserScore    Int
+    redAttack  PlayerId
+    redDefence PlayerId
+    redScore   Int
+    blueAttack   PlayerId
+    blueDefence  PlayerId
+    blueScore    Int
     Primary       uuid
-    Foreign Players fkWinnerAttack  winnerAttack
-    Foreign Players fkWinnerDefence winnerDefence
-    Foreign Players fkLoserAttack   loserAttack
-    Foreign Players fkLoserDefence  loserDefence
+    Foreign Players fkWinnerAttack  redAttack
+    Foreign Players fkWinnerDefence redDefence
+    Foreign Players fkLoserAttack   blueAttack
+    Foreign Players fkLoserDefence  blueDefence
     deriving Show
 |]

@@ -15,27 +15,34 @@
             "type": "string",
             "description": "email"
         },
-        "UUID": {
-            "example": "00000000-0000-0000-0000-000000000000",
-            "format": "uuid",
-            "type": "string"
-        },
-        "GameId": {
-            "required": [
-                "uuid_"
-            ],
+        "TeamScore": {
             "type": "object",
+            "description": "team data",
             "properties": {
-                "uuid_": {
-                    "$ref": "#/definitions/UUID"
+                "score": {
+                    "maximum": 6,
+                    "minimum": 0,
+                    "type": "integer"
+                },
+                "defence": {
+                    "$ref": "#/definitions/playerId"
+                },
+                "attack": {
+                    "$ref": "#/definitions/playerId"
                 }
             }
+        },
+        "gameId": {
+            "example": "a2e2ef2a-ca1b-4038-8767-b196ea4516af",
+            "format": "uuid",
+            "type": "string",
+            "description": "gameId"
         },
         "Game": {
             "type": "object",
             "properties": {
                 "gameId": {
-                    "$ref": "#/definitions/GameId"
+                    "$ref": "#/definitions/gameId"
                 },
                 "gameData": {
                     "$ref": "#/definitions/GameData"
@@ -50,10 +57,10 @@
             "type": "object",
             "properties": {
                 "redTeam": {
-                    "$ref": "#/definitions/TeamData"
+                    "$ref": "#/definitions/TeamScore"
                 },
                 "blueTeam": {
-                    "$ref": "#/definitions/TeamData"
+                    "$ref": "#/definitions/TeamScore"
                 }
             }
         },
@@ -62,51 +69,11 @@
             "format": "date",
             "type": "string"
         },
-        "TeamData": {
-            "required": [
-                "team",
-                "score"
-            ],
-            "type": "object",
-            "properties": {
-                "score": {
-                    "maximum": 6,
-                    "minimum": 0,
-                    "type": "integer"
-                },
-                "team": {
-                    "$ref": "#/definitions/Team"
-                }
-            }
-        },
-        "Team": {
-            "required": [
-                "defence",
-                "attack"
-            ],
-            "type": "object",
-            "properties": {
-                "defence": {
-                    "$ref": "#/definitions/playerId"
-                },
-                "attack": {
-                    "$ref": "#/definitions/playerId"
-                }
-            }
-        },
         "Players": {
-            "required": [
-                "list"
-            ],
-            "type": "object",
-            "properties": {
-                "list": {
-                    "items": {
-                        "$ref": "#/definitions/player"
-                    },
-                    "type": "array"
-                }
-            }
+            "items": {
+                "$ref": "#/definitions/player"
+            },
+            "type": "array"
         },
         "playerData": {
             "type": "object",
@@ -248,7 +215,7 @@
                     },
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/GameId"
+                            "$ref": "#/definitions/Game"
                         },
                         "description": ""
                     }

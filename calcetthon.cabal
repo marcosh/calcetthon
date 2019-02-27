@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2b21c69018380597f73e705d853a7a69f96676dc3383d7ad5e6aef9014f54534
+-- hash: 997981627f5b83c93b487f532837a1911e278b479b887303f180f7b90abae33c
 
 name:           calcetthon
 version:        0.1.0.0
@@ -28,6 +28,7 @@ library
     , conduit
     , contravariant
     , emailaddress
+    , esqueleto
     , eventful-core
     , eventful-memory
     , eventful-postgresql
@@ -49,6 +50,7 @@ library
     , text
     , time
     , transformers
+    , unordered-containers
     , wai
     , wai-cors
     , wai-extra
@@ -67,6 +69,7 @@ library
       Model.PlayerData
       Model.PlayerId
       Model.Team
+      Model.TeamScore
       ProcessManager
       ReadModel.Game
       ReadModel.Player

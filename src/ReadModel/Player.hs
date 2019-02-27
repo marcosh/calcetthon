@@ -5,6 +5,7 @@ import           Model.Email
 import           Model.Player           hiding (Players)
 import qualified Model.Player           as P (Players (..))
 import           Model.PlayerData
+import           Model.PlayerId
 
 -- eventful-core
 import           Eventful               (EventStoreWriter)

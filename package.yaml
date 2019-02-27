@@ -19,6 +19,7 @@ library:
   - conduit
   - contravariant
   - emailaddress
+  - esqueleto
   - eventful-core
   - eventful-memory
   - eventful-postgresql
@@ -40,6 +41,7 @@ library:
   - text
   - time
   - transformers
+  - unordered-containers
   - wai
   - wai-cors
   - wai-extra

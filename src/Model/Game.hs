@@ -6,17 +6,18 @@
 module Model.Game where
 
 import           Model.GameId
-import           Model.Team
+import           Model.PlayerId
+import           Model.TeamScore
 
 -- aeson
-import           Data.Aeson   (FromJSON, ToJSON)
+import           Data.Aeson      (FromJSON, ToJSON)
 
 -- base
-import           Data.Proxy   (Proxy (Proxy))
-import           GHC.Generics (Generic)
+import           Data.Proxy      (Proxy (Proxy))
+import           GHC.Generics    (Generic)
 
 -- lens
-import           Control.Lens ((&), (.~))
+import           Control.Lens    ((&), (.~))
 
 -- swagger2
 import           Data.Swagger
@@ -24,31 +25,19 @@ import           Data.Swagger
 -- eventful-core
 import           Eventful
 
-data GameData = GameData
-    { redTeam  :: TeamData
-    , blueTeam :: TeamData
+data GameData player = GameData
+    { redTeam  :: TeamScore player
+    , blueTeam :: TeamScore player
     }
     deriving (Eq, Show, Generic, FromJSON, ToJSON, ToSchema)
 
-winning :: GameData -> TeamData
-winning (GameData red blue) =
-    if score red >= score blue
-    then red
-    else blue
-
-losing :: GameData -> TeamData
-losing (GameData red blue) =
-    if score red >= score blue
-    then blue
-    else red
-
-data Game = Game GameId GameData
+data Game player = Game GameId (GameData player)
     deriving (Eq, Show, Generic, FromJSON, ToJSON)
 
-instance ToSchema Game where
+instance ToSchema (Game player) where
     declareNamedSchema _ = do
         gameIdSchema <- declareSchemaRef (Proxy :: Proxy GameId)
-        gameDataSchema <- declareSchemaRef (Proxy :: Proxy GameData)
+        gameDataSchema <- declareSchemaRef (Proxy :: Proxy (GameData player))
         return $ NamedSchema (Just "Game") $ mempty
             & type_ .~ SwaggerObject
             & properties .~
@@ -59,23 +48,23 @@ instance ToSchema Game where
 -- COMMANDS
 
 data GameCommand
-    = ConcludeGame GameId GameData
+    = ConcludeGame GameId (GameData PlayerId)
 
-gameCommandHandler :: Maybe Game -> GameCommand -> [GameEvent]
+gameCommandHandler :: Maybe (Game PlayerId) -> GameCommand -> [GameEvent]
 gameCommandHandler Nothing (ConcludeGame gameId gameData) = [GameConcluded $ Game gameId gameData]
 gameCommandHandler _ (ConcludeGame _ _) = []
 
 -- EVENTS
 
 data GameEvent
-    = GameConcluded Game
+    = GameConcluded (Game PlayerId)
     deriving (Eq, Show, Generic, FromJSON, ToJSON)
 
-handleGameEvent :: Maybe Game -> GameEvent -> Maybe Game
+handleGameEvent :: Maybe (Game PlayerId) -> GameEvent -> Maybe (Game PlayerId)
 handleGameEvent Nothing   (GameConcluded game) = Just game
 handleGameEvent maybeGame _                    = maybeGame
 
-gameProjection :: Projection (Maybe Game) GameEvent
+gameProjection :: Projection (Maybe (Game PlayerId)) GameEvent
 gameProjection = Projection
     { projectionSeed = Nothing
     , projectionEventHandler = handleGameEvent
@@ -83,5 +72,5 @@ gameProjection = Projection
 
 -- AGGREGATE
 
-gameAggregate :: Aggregate (Maybe Game) GameEvent GameCommand
+gameAggregate :: Aggregate (Maybe (Game PlayerId)) GameEvent GameCommand
 gameAggregate = Aggregate gameCommandHandler gameProjection

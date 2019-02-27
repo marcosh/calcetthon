@@ -12,10 +12,10 @@ import           Model.Player
 import           Model.PlayerData
 import           Model.PlayerId
 
-import           ReadModel.Game              as RMGames (gamesProjection)
+import           ReadModel.Game              as RMGames (gameById,
+                                                         gamesProjection)
 import           ReadModel.Player            as RMPlayers (allPlayers,
                                                            playersProjection)
--- import           ProcessManager              (processManager)
 
 -- aeson
 import           Data.Aeson                  (ToJSON)
@@ -54,8 +54,8 @@ import           Servant
 
 type API = "add-new-player" :> ReqBody '[JSON] PlayerData :> Post '[JSON] Player
     :<|> "players" :> Get '[JSON] Players
-    :<|> "record-game" :> ReqBody '[JSON] GameData :> Post '[JSON] Game
-    :<|> "game" :> Capture "gameId" UUID :> Get '[JSON] Game
+    :<|> "record-game" :> ReqBody '[JSON] (GameData PlayerId) :> Post '[JSON] (Game PlayerId)
+    :<|> "game" :> Capture "gameId" GameId :> Get '[JSON] (Game Player)
 
 calcetthonApi :: Server API
 calcetthonApi = addNewPlayerHandler
@@ -66,13 +66,9 @@ calcetthonApi = addNewPlayerHandler
 reader :: VersionedEventStoreReader (SqlPersistT IO) CalcetthonEvent
 reader = serializedVersionedEventStoreReader jsonStringSerializer $ sqlEventStoreReader defaultSqlEventStoreConfig
 
--- globalReader :: (FromJSON a, ToJSON a) => GlobalEventStoreReader (SqlPersistT IO) a
--- globalReader = serializedGlobalEventStoreReader jsonStringSerializer $ sqlGlobalEventStoreReader defaultSqlEventStoreConfig
-
 writer :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent
 writer = synchronousEventBusWrapper
     (serializedEventStoreWriter jsonStringSerializer $ postgresqlEventStoreWriter defaultSqlEventStoreConfig)
-    -- [processManagerHandler]
     [ eventPrinter
     , readPlayersProjection
     , readGamesProjection
@@ -91,11 +87,6 @@ readPlayersProjection _                _    _                                   
 readGamesProjection :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
 readGamesProjection eventStoreWriter uuid (CalcetthonGameEvent gameEvent) = RMGames.gamesProjection (contramap CalcetthonGameEvent eventStoreWriter) uuid gameEvent
 readGamesProjection _                _    _                               = pure ()
-
--- processManagerHandler :: EventStoreWriter (SqlPersistT IO) CalcetthonEvent -> UUID -> CalcetthonEvent -> SqlPersistT IO ()
--- processManagerHandler pmWriter _ _ =
---     -- streamProjection <- getLatestStreamProjection globalReader (globalStreamProjection $ processManagerProjection processManager)
---     applyProcessManagerCommandsAndEvents processManager pmWriter reader ()
 
 -- PLAYERS
 
@@ -121,18 +112,14 @@ addNewPlayerHandler playerData = do
 
 playersHandler :: Handler Players
 playersHandler = liftIO $ runSqlPool allPlayers =<< pool
-    -- let uuid = read "123e4567-e89b-12d3-a456-426655440000"
-    -- events <- liftIO $ runSqlPool (getEvents reader (allEvents uuid)) =<< pool
-    -- return $ latestProjection calcetthonPlayersProjection $ fmap streamEventEvent events
 
 -- GAME
 
-recordGameHandler :: GameData -> Handler Game
+recordGameHandler :: GameData PlayerId -> Handler (Game PlayerId)
 recordGameHandler gameData = do
     uuid <- liftIO uuidNextRandom
     let
         gameId = GameId uuid
-        -- streamUuid = read "ae55b01f-ece8-40d5-acc0-fc5afefda9f1"
     -- this should be done asynchronously
     _ <- liftIO $ runSqlPool (commandStoredAggregate writer reader calcetthonGameAggregate uuid $ CalcetthonGameCommand $ ConcludeGame gameId gameData) =<< pool
     -- end of async part
@@ -140,12 +127,7 @@ recordGameHandler gameData = do
         (GameId uuid)
         gameData
 
-gameHandler :: UUID -> Handler Game
+gameHandler :: GameId -> Handler (Game Player)
 gameHandler gameId = do
-    --let streamUuid = read "ae55b01f-ece8-40d5-acc0-fc5afefda9f1"
-    events <- liftIO $ runSqlPool (getEvents reader (allEvents gameId)) =<< pool
-    let maybeGame = latestProjection calcetthonGameProjection $ fmap streamEventEvent events
-    maybe
-        (throwError $ err404 {errBody = "game not found"})
-        return
-        maybeGame
+    maybeGame <- liftIO $ runSqlPool (gameById gameId) =<< pool
+    maybe (throwError $ err404 {errBody = "invalid game id"}) return maybeGame

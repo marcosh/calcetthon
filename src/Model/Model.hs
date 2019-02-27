@@ -5,16 +5,17 @@ module Model.Model where
 
 import           Model.Game
 import           Model.Player
+import           Model.PlayerId
 
 -- aeson
-import           Data.Aeson   (FromJSON, ToJSON)
+import           Data.Aeson     (FromJSON, ToJSON)
 
 -- base
-import           GHC.Generics (Generic)
+import           GHC.Generics   (Generic)
 
 -- eventful-base
-import           Eventful     (Aggregate, Projection (..), serializedAggregate,
-                               simpleSerializer)
+import           Eventful       (Aggregate, Projection (..),
+                                 serializedAggregate, simpleSerializer)
 
 data CalcetthonCommand
     = CalcetthonPlayerCommand PlayerCommand
@@ -47,7 +48,7 @@ calcetthonPlayersAggregate = serializedAggregate playersAggregate playersEventSe
         playersEventSerialized = simpleSerializer CalcetthonPlayerEvent deserializeCalcetthonPlayerEvent
         playersCommandSerializer = simpleSerializer CalcetthonPlayerCommand deserializeCalcetthonPlayerCommand
 
-calcetthonGameAggregate :: Aggregate (Maybe Game) CalcetthonEvent CalcetthonCommand
+calcetthonGameAggregate :: Aggregate (Maybe (Game PlayerId)) CalcetthonEvent CalcetthonCommand
 calcetthonGameAggregate = serializedAggregate gameAggregate gameEventSerialized gameCommandSerializer
     where
         gameEventSerialized = simpleSerializer CalcetthonGameEvent deserializeCalcetthonGameEvent
@@ -60,10 +61,10 @@ calcetthonPlayersProjection = Projection (projectionSeed playersProjection) hand
         handleCalcetthonPlayersEvent players (CalcetthonPlayerEvent event) = (projectionEventHandler playersProjection) players event
         handleCalcetthonPlayersEvent players _ = players
 
-calcetthonGameProjection :: Projection (Maybe Game) CalcetthonEvent
+calcetthonGameProjection :: Projection (Maybe (Game PlayerId)) CalcetthonEvent
 calcetthonGameProjection = Projection (projectionSeed gameProjection) handleCalcetthonGameEvent
     where
-        handleCalcetthonGameEvent :: Maybe Game -> CalcetthonEvent -> Maybe Game
+        handleCalcetthonGameEvent :: Maybe (Game PlayerId) -> CalcetthonEvent -> Maybe (Game PlayerId)
         handleCalcetthonGameEvent game (CalcetthonGameEvent event) = projectionEventHandler gameProjection game event
         handleCalcetthonGameEvent game _ = game
 

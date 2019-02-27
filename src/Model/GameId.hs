@@ -7,6 +7,8 @@ import           Data.Aeson             (FromJSON, ToJSON, parseJSON, toJSON,
                                          withText)
 
 -- base
+import           Data.Proxy             (Proxy (Proxy))
+import           GHC.Generics           (Generic)
 import           Text.Read              (Read, readPrec)
 
 -- eventful-core
@@ -30,9 +32,10 @@ import           Database.Persist.Types (PersistValue (..), SqlType (..))
 
 -- swagger2
 import           Data.Swagger           (NamedSchema (..),
-                                         SwaggerType (SwaggerString), ToSchema,
-                                         declareNamedSchema, description,
-                                         example, format, type_)
+                                         SwaggerType (SwaggerString),
+                                         ToParamSchema (toParamSchema),
+                                         ToSchema, declareNamedSchema,
+                                         description, example, format, type_)
 
 -- text
 import           Data.Text.Encoding     (decodeUtf8, encodeUtf8)
@@ -56,6 +59,9 @@ instance ToSchema GameId where
         & description ?~ "gameId"
         & format ?~ "uuid"
         & example ?~ "a2e2ef2a-ca1b-4038-8767-b196ea4516af"
+
+instance ToParamSchema GameId where
+    toParamSchema _ = toParamSchema (Proxy :: Proxy UUID)
 
 instance PersistField GameId where
     toPersistValue gameId = PersistDbSpecific $ (encodeUtf8 . uuidToText . uuid_) gameId
