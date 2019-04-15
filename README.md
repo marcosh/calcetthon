@@ -1,6 +1,8 @@
 # calcetthon
 
-Backend application to collect our foosball results
+Backend application to collect foosball results.
+
+Developed while working in [MVlabs](https://www.mvlabs.it/), where foosball is a serious thing.
 
 ## Run the project
 
